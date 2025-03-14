@@ -20,3 +20,5 @@ library('readr')
 library('dplyr')
 library('stringr')
 
+cat("All required packages have been checked and loaded.\n")
+
