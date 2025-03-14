@@ -1,64 +1,50 @@
-# Define server logic for the Shiny app
-server <- function(input, output, session) {
-  
-  # Reactive expression to read and process input data
-  inputData <- eventReactive(input$analyze, {
-    if (!is.null(input$fileUpload)) {
-      # Determine file type and process accordingly
-      fileExt <- tools::file_ext(input$fileUpload$name)
-      if (fileExt == "txt") {
-        # For .txt files, read as raw text
-        return(list(text = readLines(input$fileUpload$datapath, warn = FALSE), source = "file"))
-      } else if (fileExt == "csv") {
-        # For .csv files, read as a data frame and extract selected column
-        data <- read_csv(input$fileUpload$datapath)
-        if (!is.null(input$textColumn)) {
-          selectedText <- data[[input$textColumn]]
-          return(list(text = selectedText, source = "file"))
-        } else {
-          return(NULL) # No column selected
-        }
-      }
-    } else if (!is.null(input$textInput) && nchar(input$textInput) > 0) {
-      # For raw text input, use the text directly
-      return(list(text = input$textInput, source = "textInput"))
+# server.R
+library(shiny)
+library(tidytext)
+library(dplyr)
+library(stringr)
+library(textdata)
+library(DT)
+
+server <- function(input, output) {
+
+  observeEvent(input$run_analysis, {
+
+    raw_text <- input$raw_text
+
+    if (nchar(raw_text) > 0) {
+      # Split text into paragraphs (or documents)
+      paragraphs <- str_split(raw_text, "\\n\\n")[[1]]
+
+      # Sentence tokenization and sentiment analysis
+      sentences_df <- tibble(doc_index = rep(1:length(paragraphs), times = sapply(str_split(paragraphs, "(?<=[.!?])\\s+"), length)),
+                               sentence = unlist(str_split(paragraphs, "(?<=[.!?])\\s+"))) %>%
+        mutate(sentence = str_trim(sentence)) %>%
+        filter(nchar(sentence) > 0) %>%
+        unnest_tokens(word, sentence) %>%
+        inner_join(get_sentiments("afinn"), by = "word") %>%
+        group_by(doc_index, sentence) %>%
+        summarise(sentiment_score = sum(value), .groups = "drop")
+
+      # Corpus Summary
+      num_docs <- length(paragraphs)
+      num_sentences <- nrow(sentences_df)
+      num_words <- str_count(raw_text, "\\w+")
+
+      output$corpus_summary <- renderPrint({
+        paste("Number of Documents/Paragraphs:", num_docs, "\n",
+              "Number of Sentences:", num_sentences, "\n",
+              "Number of Words:", num_words)
+      })
+
+      # Sentiment Table
+      output$sentiment_table <- DT::renderDataTable({
+        sentences_df
+      })
+
     } else {
-      return(NULL) # No valid input
+      output$corpus_summary <- renderPrint("Please paste text into the input field.")
+      output$sentiment_table <- DT::renderDataTable(NULL)
     }
-  })
-  
-  # Dynamically generate dropdown for text column selection
-  output$textColumnSelector <- renderUI({
-    req(input$fileUpload) # Ensure a file is uploaded
-    fileExt <- tools::file_ext(input$fileUpload$name)
-    if (fileExt == "csv") {
-      data <- read_csv(input$fileUpload$datapath)
-      selectInput("textColumn", "Select Text Column for Analysis", choices = colnames(data))
-    }
-  })
-  
-  # Perform corpus summary analysis
-  output$corpusSummary <- renderPrint({
-    data <- inputData()
-    if (is.null(data)) {
-      return("Please provide input (upload a file or paste text).")
-    }
-    
-    # Combine all text into a single string
-    combinedText <- paste(data$text, collapse = " ")
-    
-    # Calculate corpus attributes
-    numDocuments <- length(data$text) # Number of documents/paragraphs
-    sentences <- str_split(combinedText, "[.!?]") %>% unlist() %>% str_trim() # Split by sentence punctuation
-    numSentences <- sum(nchar(sentences) > 0) # Count non-empty sentences
-    words <- str_split(combinedText, "\\s+") %>% unlist() %>% str_trim() # Split by whitespace
-    numWords <- sum(nchar(words) > 0) # Count non-empty words
-    
-    # Return summary
-    list(
-      "Number of Documents/Paragraphs" = numDocuments,
-      "Number of Sentences" = numSentences,
-      "Number of Words" = numWords
-    )
   })
 }
