@@ -1,32 +1,32 @@
-# ui.R
-library(shiny)
-
-fluidPage(
-  titlePanel("Corpus Attribute Summary"),
-
+# Define UI for the Shiny app
+ui <- fluidPage(
+  titlePanel("Text Corpus Analysis App"),
+  
   sidebarLayout(
     sidebarPanel(
-      h4("Input Options"),
-      # Option 1: Paste raw text
-      textAreaInput("raw_text", "Paste Text Here:", rows = 5),
-      tags$hr(),
-
-      # Option 2: Upload text file
-      fileInput("file_upload", "Upload Text File (.txt or .csv):",
-                accept = c("text/plain",
-                           "text/csv",
-                           "application/vnd.ms-excel")),
-
-      # Conditional panel for CSV column selection
+      # File upload field
+      fileInput("fileUpload", "Upload a Text File",
+                accept = c(".txt", ".csv"),
+                multiple = FALSE),
+      
+      # Dropdown to select text column (for CSV files)
       conditionalPanel(
-        condition = "output.is_csv_upload",
-        selectInput("text_column", "Select Text Column:", choices = NULL)
-      )
+        condition = "input.fileUpload != null",
+        selectInput("textColumn", "Select Text Column for Analysis", choices = NULL)
+      ),
+      
+      # Text input field
+      textAreaInput("textInput", "Or Paste Raw Text Here", 
+                    placeholder = "Enter your text here...", 
+                    rows = 10),
+      
+      # Action button to trigger analysis
+      actionButton("analyze", "Run Analysis")
     ),
-
+    
     mainPanel(
-      h4("Corpus Summary"),
-      verbatimTextOutput("corpus_summary")
+      h3("Corpus Summary"),
+      verbatimTextOutput("corpusSummary")
     )
   )
 )
