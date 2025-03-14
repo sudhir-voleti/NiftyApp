@@ -19,6 +19,9 @@ ui <- fluidPage(
         ),
         tabPanel("sentiPlot",
                  plotlyOutput("sentiment_plot")
+        ),
+        tabPanel("freq distbns",
+                 plotlyOutput("freq_dist_plot")
         )
       )
     )
