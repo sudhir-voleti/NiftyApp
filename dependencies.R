@@ -1,0 +1,17 @@
+# dependencies.R
+
+# List of required packages
+required_packages <- c("shiny", "readr", "dplyr", "stringr")
+
+# Function to check and install packages
+check_and_install <- function(package_name) {
+  if (!requireNamespace(package_name, quietly = TRUE)) {
+    install.packages(package_name)
+  }
+  library(package_name)
+}
+
+# Install and load required packages
+for (pkg in required_packages) {
+  check_and_install(pkg)
+}
