@@ -1,10 +1,11 @@
-# Load required libraries
-if (!requireNamespace("shiny", quietly = TRUE)) install.packages("shiny")
-if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
-if (!requireNamespace("readr", quietly = TRUE)) install.packages("readr")
-if (!requireNamespace("stringr", quietly = TRUE)) install.packages("stringr")
+# dependencies.R
+# Check, install, and load required packages.
 
-library(shiny)
-library(dplyr)
-library(readr)
-library(stringr)
+packages <- c("shiny", "tidytext", "dplyr", "stringr", "textdata", "DT")
+
+for (pkg in packages) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    install.packages(pkg)
+  }
+  library(pkg, character.only = TRUE)
+}
