@@ -29,12 +29,8 @@ server <- function(input, output) {
         unnest_tokens(word, sentence, token="words", drop=FALSE) %>%
         inner_join(get_sentiments("afinn"), by = "word") %>%
         group_by(doc_index, sentence) %>%
-        summarise(sentiment_score = sum(value), .groups = "drop")
-
-      # Document level sentiment
-      doc_sentiment <- sentences_df %>%
-        group_by(doc_index) %>%
-        summarise(doc_sentiment_score = sum(sentiment_score), .groups = "drop")
+        summarise(sentiment_score = sum(value), .groups = "drop") %>%
+        mutate(sentence_number = row_number()) # Add sentence_number
 
       # Corpus Summary
       num_docs <- length(paragraphs)
@@ -54,10 +50,10 @@ server <- function(input, output) {
 
       # Sentiment Plot
       output$sentiment_plot <- renderPlotly({
-        p <- ggplot(doc_sentiment, aes(x = doc_index, y = doc_sentiment_score)) +
+        p <- ggplot(sentences_df, aes(x = sentence_number, y = sentiment_score)) +
           geom_line() +
           geom_point() +
-          labs(x = "Document Number", y = "Document Sentiment Score") +
+          labs(x = "Sentence Number", y = "Sentence Sentiment Score") +
           theme_minimal()
         ggplotly(p)
       })
