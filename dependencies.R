@@ -1,17 +1,10 @@
-# dependencies.R
+# Load required libraries
+if (!requireNamespace("shiny", quietly = TRUE)) install.packages("shiny")
+if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
+if (!requireNamespace("readr", quietly = TRUE)) install.packages("readr")
+if (!requireNamespace("stringr", quietly = TRUE)) install.packages("stringr")
 
-# Function to check if a package is installed, install if not, and then load it
-load_package <- function(package_name) {
-  if (!requireNamespace(package_name, quietly = TRUE)) {
-    install.packages(package_name)
-  }
-  library(package_name, character.only = TRUE)
-}
-
-# List of required packages
-required_packages <- c("shiny", "dplyr", "tidytext", "stringr")
-
-# Load all required packages
-for (pkg in required_packages) {
-  load_package(pkg)
-}
+library(shiny)
+library(dplyr)
+library(readr)
+library(stringr)
