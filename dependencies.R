@@ -15,10 +15,10 @@ for (pkg in required_packages) {
 }
 
 # Load required libraries directly
-library('shiny')
-library('readr')
-library('dplyr')
-library('stringr')
+library("shiny");
+library("readr");
+library("dplyr");
+library("stringr");
 
 cat("All required packages have been checked and loaded.\n")
 
