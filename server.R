@@ -21,7 +21,7 @@ server <- function(input, output) {
                                sentence = unlist(str_split(paragraphs, "(?<=[.!?])\\s+"))) %>%
         mutate(sentence = str_trim(sentence)) %>%
         filter(nchar(sentence) > 0) %>%
-        unnest_tokens(word, sentence) %>%
+        unnest_tokens(word, sentence, token="words", drop=FALSE) %>% # added drop=FALSE to keep sentence column
         inner_join(get_sentiments("afinn"), by = "word") %>%
         group_by(doc_index, sentence) %>%
         summarise(sentiment_score = sum(value), .groups = "drop")
