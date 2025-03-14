@@ -5,6 +5,8 @@ library(dplyr)
 library(stringr)
 library(textdata)
 library(DT)
+library(ggplot2)
+library(plotly)
 
 server <- function(input, output) {
 
@@ -29,6 +31,11 @@ server <- function(input, output) {
         group_by(doc_index, sentence) %>%
         summarise(sentiment_score = sum(value), .groups = "drop")
 
+      # Document level sentiment
+      doc_sentiment <- sentences_df %>%
+        group_by(doc_index) %>%
+        summarise(doc_sentiment_score = sum(sentiment_score), .groups = "drop")
+
       # Corpus Summary
       num_docs <- length(paragraphs)
       num_sentences <- nrow(sentences_df)
@@ -45,9 +52,20 @@ server <- function(input, output) {
         sentences_df
       })
 
+      # Sentiment Plot
+      output$sentiment_plot <- renderPlotly({
+        p <- ggplot(doc_sentiment, aes(x = doc_index, y = doc_sentiment_score)) +
+          geom_line() +
+          geom_point() +
+          labs(x = "Document Number", y = "Document Sentiment Score") +
+          theme_minimal()
+        ggplotly(p)
+      })
+
     } else {
       output$corpus_summary <- renderPrint("Please paste text into the input field.")
       output$sentiment_table <- DT::renderDataTable(NULL)
+      output$sentiment_plot <- renderPlotly(NULL)
     }
   })
 }
