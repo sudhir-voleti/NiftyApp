@@ -1,5 +1,6 @@
 # ui.R
 library(shiny)
+library(plotly)
 
 ui <- fluidPage(
   titlePanel("Text Analysis App"),
@@ -9,10 +10,17 @@ ui <- fluidPage(
       actionButton("run_analysis", "Run Analysis")
     ),
     mainPanel(
-      h4("Corpus Summary:"),
-      verbatimTextOutput("corpus_summary"),
-      h4("Sentence Sentiment Analysis:"),
-      DT::dataTableOutput("sentiment_table")
+      tabsetPanel(
+        tabPanel("Summary",
+                 h4("Corpus Summary:"),
+                 verbatimTextOutput("corpus_summary"),
+                 h4("Sentence Sentiment Analysis:"),
+                 DT::dataTableOutput("sentiment_table")
+        ),
+        tabPanel("sentiPlot",
+                 plotlyOutput("sentiment_plot")
+        )
+      )
     )
   )
 )
