@@ -1,11 +1,14 @@
 # dependencies.R
-# Check, install, and load required packages.
 
-packages <- c("shiny", "tidytext", "dplyr", "stringr", "textdata", "DT", "ggplot2", "plotly")
+# List of required packages
+required_packages <- c("shiny", "stringr", "rvest", "httr", "tidytext", "dplyr", "sentimentr", "DT")
 
-for (pkg in packages) {
-  if (!requireNamespace(pkg, quietly = TRUE)) {
-    install.packages(pkg)
-  }
-  library(pkg, character.only = TRUE)
+# Function to check, install, and load packages
+load_packages <- function(pkg_list) {
+  new_packages <- pkg_list[!(pkg_list %in% installed.packages()[,"Package"])]
+  if(length(new_packages)) install.packages(new_packages)
+  for(pkg in pkg_list) library(pkg, character.only = TRUE)
 }
+
+# Load the required packages
+load_packages(required_packages)
