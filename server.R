@@ -34,7 +34,7 @@ shinyServer(function(input, output) {
         mutate(doc_index = doc_index)
       if (nrow(sentences) > 0) {
         sentiments <- sentiment(sentences$sentence)
-        sentences$sentiment_score <- sentiments$sentiment
+        sentences$sentiment_score <- round(sentiments$sentiment, 2) # Round sentiment score
         sentence_data <- bind_rows(sentence_data, sentences)
       }
       doc_index <- doc_index + 1
@@ -47,8 +47,8 @@ shinyServer(function(input, output) {
 
     list(
       summary = paste(
-        "Number of Documents:", num_documents, "\n",
-        "Number of Sentences:", num_sentences, "\n",
+        "Number of Documents:", num_documents, "<br/>",
+        "Number of Sentences:", num_sentences, "<br/>",
         "Number of Words:", num_words
       ),
       sentiment_table = sentence_data %>%
@@ -56,7 +56,7 @@ shinyServer(function(input, output) {
     )
   })
 
-  output$summary_output <- renderPrint({
+  output$summary_output <- renderText({
     processed_data()$summary
   })
 
