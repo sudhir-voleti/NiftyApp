@@ -1,7 +1,7 @@
 # dependencies.R
 
 # List of required packages
-required_packages <- c("shiny", "stringr", "rvest", "httr", "tidytext", "dplyr", "sentimentr", "DT")
+required_packages <- c("shiny", "stringr", "rvest", "httr", "tidytext", "dplyr", "sentimentr", "DT", "plotly", "ggplot2")
 
 # Function to check, install, and load packages
 load_packages <- function(pkg_list) {
